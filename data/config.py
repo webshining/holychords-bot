@@ -17,12 +17,11 @@ RD_PORT = env.int("RD_PORT", None)
 RD_USER = env.str("RD_USER", None)
 RD_PASS = env.str("RD_PASS", None)
 
-RD_URI = env.str("RD_URI", None) or env.str("REDISCLOUD_URL", None)
-if not RD_URI and RD_DB and RD_PORT and RD_HOST:
-    url = "redis://"
+RD_URI = env.str("RD_URI", default=None)
+if RD_DB and RD_HOST and RD_PORT:
+    RD_URI = f"redis://{RD_HOST}:{RD_PORT}/{RD_DB}"
     if RD_USER and RD_PASS:
-        url += f"{RD_USER}:{RD_PASS}@"
-    url += f"redis://{RD_HOST}:{RD_PORT}/{RD_DB}"
+        RD_URI = f"redis://{RD_USER}:{RD_PASS}@{RD_HOST}:{RD_PORT}/{RD_DB}"
 
 
 SURREAL_NS = env.str("SURREAL_NS", "test")
@@ -30,7 +29,7 @@ SURREAL_DB = env.str("SURREAL_DB", "test")
 SURREAL_USER = env.str("SURREAL_USER", None)
 SURREAL_PASS = env.str("SURREAL_PASS", None)
 
-SURREAL_URL = env.str("SURREAL_URL", "ws://localhost:8000/rpc")
+SURREAL_URL = env.str("SURREAL_URL", "ws://localhost:8000")
 
 
 I18N_PATH = f"{DIR}/data/locales"

@@ -1,60 +1,27 @@
-x-db-env: &dbenv
-  SURREAL_URL: ${SURREAL_URL:-ws://db:8000/rpc}
-  SURREAL_NS: ${SURREAL_NS:-bot}
-  SURREAL_DB: ${SURREAL_DB:-bot}
-  SURREAL_USER: ${SURREAL_USER:-root}
-  SURREAL_PASS: ${SURREAL_PASS:-root}
-
-x-redis-env: &redisenv
-  RD_DB: ${RD_DB:-5}
-  RD_HOST: ${RD_HOST:-redis}
-  RD_PORT: ${RD_PORT:-6379}
-
-x-env: &env
-  TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?}
-
-  <<: [ *dbenv, *redisenv ]
-
-
-
 services:
   app:
     build: .
     restart: on-failure
-    depends_on:
-      - redis
-      - db
     environment:
-      <<: *env
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?}
+      SURREAL_URL: ${SURREAL_URL:-ws://db:8000}
+      SURREAL_NS: ${SURREAL_NS:-bot}
+      SURREAL_DB: ${SURREAL_DB:-bot}
+      SURREAL_USER: ${SURREAL_USER:-root}
+      SURREAL_PASS: ${SURREAL_PASS:-root}
+      RD_DB: ${RD_DB:-5}
+      RD_HOST: ${RD_HOST:-redis}
+      RD_PORT: ${RD_PORT:-6379}
+      RD_USER: ${RD_USER:-admin}
+      RD_PASS: ${RD_USER:-admin}
     entrypoint:
       - ./bin/entrypoint.sh
-  redis:
-    image: redis:alpine
-    restart: always
-    command: redis-server --appendonly yes
-    environment:
-      - REDIS_REPLICATION_MODE=master
-    volumes:
-      - redis:/data
-  db:
-    image: surrealdb/surrealdb:latest
-    restart: always
-    user: root
-    environment:
-      <<: *dbenv
-    entrypoint:
-      - /surreal
-      - start
-      - --user
-      - ${SURREAL_USER:-root}
-      - --pass
-      - ${SURREAL_PASS:-root}
-      - file:/mydata/mydatabase.db
-    ports:
-      - "8000:8000"
-    volumes:
-      - surreal:/mydata
+    networks:
+      - database_network
+      - storage_network
 
-volumes:
-  surreal:
-  redis:
+networks:
+  storage_network:
+    external: true
+  database_network:
+    external: true

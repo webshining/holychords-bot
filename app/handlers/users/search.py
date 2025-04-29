@@ -19,7 +19,7 @@ async def get_song_state(id: int, state: FSMContext):
 
     if not song:
         song = await get_song(id)
-        await state.update_data(songs=pickle.dumps([song]).hex())
+        await state.update_data(songs=pickle.dumps([*songs, song]).hex())
 
     return song
 

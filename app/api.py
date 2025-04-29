@@ -19,11 +19,7 @@ def is_chord_line(line: str):
     tokens = re.sub(r"\s+", " ", line).strip().split(" ")
     allowed_tokens = {"|", "/", "(", ")", "-", "x2", "x3", "x4", "x5", "x6", "•", "NC"}
     for i in tokens:
-        if (
-                i.strip()
-                and not re.match(chord_regex, i)
-                and all(j not in i for j in allowed_tokens)
-        ):
+        if i.strip() and not re.match(chord_regex, i) and all(j not in i for j in allowed_tokens):
             return False
     return True
 
@@ -49,9 +45,7 @@ class SongAPI(BaseModel):
     def isp_name(cls, data: dict) -> str:
         data["file"] = f'{URL}{data["file"]}' if data["file"] else ""
         data["artist"] = (
-            data["artist"]["isp_name"]
-            if "isp_name" in data["artist"]
-            else data["artist"]
+            data["artist"]["isp_name"] if "isp_name" in data["artist"] else data["artist"]
         )
         return data
 
@@ -72,8 +66,10 @@ async def get_song(id: int):
     soup = BeautifulSoup(r.text, "lxml")
     text = soup.find(id="music_text")
     text = text.get_text().strip() if text else text
-    name = soup.find("meta", property="music:song")["content"].strip()
-    artist = soup.find("meta", property="music:musician")["content"].strip()
+    name, artist = [
+        i.get_text().replace("\n", "")
+        for i in soup.find_all(attrs={"class": "t-worship-leader__marquee__headline"})
+    ]
     data = soup.find("span", {"data-audio-id": id})
     file = data["data-audio-file"] if data else None
     song = SongAPI(id=id, name=name, artist=artist, file=file, text=text)
