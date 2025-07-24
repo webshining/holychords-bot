@@ -1,10 +1,10 @@
 from aiogram import F
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery, Message
 
-from app.keyboards import get_songs_markup, SongCallback
+from app.keyboards import SongCallback, get_songs_markup
 from database.models import User
-from loader import dp, _
+from loader import _, dp
 
 
 @dp.message(Command("library"))

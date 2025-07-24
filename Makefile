@@ -9,6 +9,12 @@ logs:
 	docker compose logs -f app
 rebuild:
 	docker compose up -d --no-deps --force-recreate --build ${ARGS}
+alembic_create:
+	alembic revision --autogenerate -m "Added tables"
+alembic_upgrade:
+	alembic upgrade head
+alembic_rollback:
+	alembic downgrade -1
 pybabel_extract:
 	pybabel extract --input-dirs=. -o $(LOCALES_PATH)/$(I18N_DOMAIN).pot
 pybabel_init: 

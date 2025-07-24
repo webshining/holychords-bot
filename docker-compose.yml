@@ -2,26 +2,14 @@ services:
   app:
     build: .
     restart: on-failure
+    command: sh -c "python main.py"
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?}
-      SURREAL_URL: ${SURREAL_URL:-ws://db:8000}
-      SURREAL_NS: ${SURREAL_NS:-bot}
-      SURREAL_DB: ${SURREAL_DB:-bot}
-      SURREAL_USER: ${SURREAL_USER:-root}
-      SURREAL_PASS: ${SURREAL_PASS:-root}
-      RD_DB: ${RD_DB:-5}
-      RD_HOST: ${RD_HOST:-redis}
-      RD_PORT: ${RD_PORT:-6379}
-      RD_USER: ${RD_USER:-admin}
-      RD_PASS: ${RD_USER:-admin}
-    entrypoint:
-      - ./bin/entrypoint.sh
+      RD_URI: ${RD_URI}
+      DB_URI: ${DB_URI}
     networks:
-      - database_network
-      - storage_network
+      - storage
 
 networks:
-  storage_network:
-    external: true
-  database_network:
+  storage:
     external: true

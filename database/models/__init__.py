@@ -1,1 +1,2 @@
-from .user import User, Song
+from .song import Song
+from .user import User

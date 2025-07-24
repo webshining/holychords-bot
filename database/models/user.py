@@ -1,17 +1,18 @@
-from pydantic import Field, BaseModel
+from typing import List
 
-from .base import Base
+from sqlalchemy import BigInteger, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-
-class Song(BaseModel):
-    id: int
-    name: str
-    artist: str
+from .song import user_song, user_history
+from ..base import BaseModel
 
 
-class User(Base):
-    id: int
-    songs: list[Song] = Field(default=[])
+class User(BaseModel):
+    __tablename__ = "users"
 
-
-User.set_collection("user")
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    username: Mapped[str] = mapped_column(String, nullable=True)
+    status: Mapped[str] = mapped_column(String, default="user")
+    songs: Mapped[List["Song"]] = relationship(back_populates="users", lazy="joined", secondary=user_song)
+    history: Mapped[List["Song"]] = relationship(back_populates="history", lazy="joined", secondary=user_history)

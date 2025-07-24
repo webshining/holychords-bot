@@ -1,32 +1,28 @@
-import pickle
-
 from aiogram import F
-from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
+from app.api import get_text
 from app.handlers.users.search import get_song_state
 from app.keyboards import SongCallback, get_songs_markup, get_song_markup, SongsCallback
-from database.models import Song, User
+from database.models import User
 from loader import dp, _
 
 
 @dp.callback_query(SongsCallback.filter())
-async def select_song_(call: CallbackQuery, state: FSMContext, callback_data: SongsCallback, user: User):
-    song = await get_song_state(callback_data.id, state)
+async def select_song_(call: CallbackQuery, callback_data: SongsCallback, user: User, session):
+    song = await get_song_state(callback_data.id, user, session)
 
     if song.text:
-        library = song.id in [s.id for s in user.songs]
-        text = song.get_text(chords=False)
+        library = song in user.songs
+        text = get_text(song.text, chords=False)
         markup = get_song_markup(callback_data.data, song.id, library=library)
         return await call.message.edit_text(text, reply_markup=markup)
     return await call.answer(_("Looks like the song has no lyrics"), show_alert=True)
 
 
-@dp.callback_query(SongCallback.filter((F.data == "search") & (F.action == "back")))
-async def back_to_result_(call: CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    songs = data.get("songs")
-    songs = pickle.loads(bytes.fromhex(songs)) if songs else []
+@dp.callback_query(SongCallback.filter(F.data.regexp(r"search") & F.action.regexp(r"back")))
+async def back_to_result_(call: CallbackQuery, user: User):
+    songs = user.history
 
     if songs:
         text = _("Select song:") + "\n"
@@ -38,37 +34,38 @@ async def back_to_result_(call: CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query(SongCallback.filter(F.action.startswith("chords")))
-async def song_chords_(call: CallbackQuery, state: FSMContext, callback_data: SongCallback, user: User):
-    song = await get_song_state(callback_data.id, state)
+async def song_chords_(call: CallbackQuery, callback_data: SongCallback, user: User, session):
+    song = await get_song_state(callback_data.id, user, session)
 
     chords = eval(callback_data.action[7:])
-    library = song.id in [s.id for s in user.songs]
+    library = song in user.songs
 
-    return await call.message.edit_text(song.get_text(chords),
+    return await call.message.edit_text(get_text(song.text, chords),
                                         reply_markup=get_song_markup(callback_data.data, song.id, chords=chords,
                                                                      library=library))
 
 
-@dp.callback_query(SongCallback.filter(F.action == "music"))
-async def song_music_(call: CallbackQuery, state: FSMContext, callback_data: SongCallback):
-    song = await get_song_state(callback_data.id, state)
+@dp.callback_query(SongCallback.filter(F.action.regexp(r"music")))
+async def song_music_(call: CallbackQuery, callback_data: SongCallback, user: User, session):
+    song = await get_song_state(callback_data.id, user, session)
 
-    if song.file:
+    if song.file != "":
         return await call.message.answer_audio(audio=song.file)
     return await call.answer(_("Looks like there’s no music on the resource for this song"), show_alert=True)
 
 
 @dp.callback_query(SongCallback.filter(F.action.startswith("library")))
-async def song_library_(call: CallbackQuery, state: FSMContext, callback_data: SongCallback, user: User):
-    song = await get_song_state(callback_data.id, state)
+async def song_library_(call: CallbackQuery, callback_data: SongCallback, user: User, session):
+    song = await get_song_state(callback_data.id, user, session)
 
     chords = eval(SongCallback.unpack(call.message.reply_markup.inline_keyboard[0][0].callback_data).action[7:])
     library = eval(callback_data.action[8:])
     if library:
-        songs = [*user.songs, Song(id=song.id, name=song.name, artist=song.artist)]
+        user.songs.append(song)
+        await session.commit()
     else:
-        songs = list(filter(lambda s: s.id != song.id, user.songs))
-    await user.update(id=user.id, songs=[s.model_dump() for s in songs])
+        user.songs.remove(song)
+        await session.commit()
 
     return await call.message.edit_reply_markup(
         reply_markup=get_song_markup(callback_data.data, song.id, chords=not chords, library=library))

@@ -2,9 +2,10 @@ import asyncio
 import html
 import re
 
-from bs4 import BeautifulSoup
 from pydantic import BaseModel, Field, model_validator
 from requests_html import AsyncHTMLSession
+
+from database.models import Song
 
 URL = "https://holychords.pro"
 chord_regex = r"^[A-H][b#]?(2|5|6|7|9|11|13|\+|\+2|\+4|\+5|\+6|\+7|\+9|\+11|\+13|6/9|7-5|7-9|7#5|#5|7#9|#9|7+3|7+5|7+9|7b5|7b9|7sus2|7sus4|add2|add4|add6|add9|aug|dim|dim7|m/maj7|m6|m7|m7b5|m9|m11|m13|maj|maj7|maj9|maj11|maj13|mb5|m|sus|sus2|sus4|m7add11|add11|b5|-5|4)*(/[A-H][b#]*)*$"
@@ -13,6 +14,32 @@ videlit = (
     "мация:|intro:|verse:|chorus:|bridge:|instrumental:|build:|ending:|link:|outro:|interlude:|rap:|spontaneous:|refrain:|tag:|coda:|vamp:|channel:|break:|breakdown:|hook:|turnaround:|turn:|solo:|вступ:|інтро:|приспів:|інструментал:|"
     "інтерлюдія:|брідж:|заспів:|міст:|програш:|соло:|перехід:|повтор:|кінець:|в кінці:|фінал:|кінцівка:|закінчення:|тег:|вірш:|частина:|прыпеў:|прысьпеў:|пройгрыш:|couplet:|pont:|strofă:|refren:|verso:|coro:|puente:|refrão:|parte:|strofa:|zwrotka:|espontáneo:|chords:"
 )
+
+
+async def get_songs(search_name: str, db_session) -> list[Song]:
+    session = AsyncHTMLSession(loop=asyncio.get_event_loop())
+    search_name = "+".join(search_name.split(" "))
+    r = await session.get(
+        f"{URL}/search?name={search_name}",
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+    songs = [SongAPI(**s) for s in r.json()["musics"]["data"]]
+    songs = [
+        await Song.get_or_create(id=s.id, name=s.name, artist=s.artist, file=s.file, text=s.text, session=db_session)
+        for s in songs]
+    await db_session.commit()
+    return songs
+
+
+def get_text(text: str = None, chords: bool = False) -> str | None:
+    if not text:
+        return None
+    text = text.split("\n")
+    text = text if chords else [i for i in text if not is_chord_line(i)]
+    for i, t in enumerate(text):
+        if re.search(videlit, t.lower()):
+            text[i] = f"\n<b>{t}</b>"
+    return html.unescape("\n".join(text))
 
 
 def is_chord_line(line: str):
@@ -31,16 +58,6 @@ class SongAPI(BaseModel):
     file: str | None = Field(None)
     text: str | None = Field(None)
 
-    def get_text(self, chords: bool = False) -> str | None:
-        if not self.text:
-            return None
-        text = self.text.split("\n")
-        text = text if chords else [i for i in text if not is_chord_line(i)]
-        for i, t in enumerate(text):
-            if re.search(videlit, t.lower()):
-                text[i] = f"\n<b>{t}</b>"
-        return html.unescape("\n".join(text))
-
     @model_validator(mode="before")
     def isp_name(cls, data: dict) -> str:
         data["file"] = f'{URL}{data["file"]}' if data["file"] else ""
@@ -48,29 +65,3 @@ class SongAPI(BaseModel):
             data["artist"]["isp_name"] if "isp_name" in data["artist"] else data["artist"]
         )
         return data
-
-
-async def get_songs(search_name: str) -> list[SongAPI]:
-    session = AsyncHTMLSession(loop=asyncio.get_event_loop())
-    search_name = "+".join(search_name.split(" "))
-    r = await session.get(
-        f"{URL}/search?name={search_name}",
-        headers={"X-Requested-With": "XMLHttpRequest"},
-    )
-    return [SongAPI(**i) for i in r.json()["musics"]["data"]]
-
-
-async def get_song(id: int):
-    session = AsyncHTMLSession(loop=asyncio.get_event_loop())
-    r = await session.get(f"{URL}/{id}")
-    soup = BeautifulSoup(r.text, "lxml")
-    text = soup.find(id="music_text")
-    text = text.get_text().strip() if text else text
-    name, artist = [
-        i.get_text().replace("\n", "")
-        for i in soup.find_all(attrs={"class": "t-worship-leader__marquee__headline"})
-    ]
-    data = soup.find("span", {"data-audio-id": id})
-    file = data["data-audio-file"] if data else None
-    song = SongAPI(id=id, name=name, artist=artist, file=file, text=text)
-    return song
