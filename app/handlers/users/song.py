@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 from aiogram import F
 from aiogram.types import CallbackQuery
 
@@ -5,7 +7,7 @@ from app.api import get_text
 from app.handlers.users.search import get_song_state
 from app.keyboards import SongCallback, get_songs_markup, get_song_markup, SongsCallback
 from database.models import User
-from loader import dp, _
+from loader import dp, _, bot
 
 
 @dp.callback_query(SongsCallback.filter())
@@ -40,9 +42,15 @@ async def song_chords_(call: CallbackQuery, callback_data: SongCallback, user: U
     chords = eval(callback_data.action[7:])
     library = song in user.songs
 
-    return await call.message.edit_text(get_text(song.text, chords),
-                                        reply_markup=get_song_markup(callback_data.data, song.id, chords=chords,
-                                                                     library=library))
+    with suppress(Exception):
+        if call.inline_message_id:
+            await bot.edit_message_text(inline_message_id=call.inline_message_id,
+                                        text=get_text(song.text, chords),
+                                        reply_markup=get_song_markup("", id=song.id, chords=chords, inline=True))
+        else:
+            await call.message.edit_text(get_text(song.text, chords),
+                                         reply_markup=get_song_markup(callback_data.data, song.id, chords=chords,
+                                                                      library=library))
 
 
 @dp.callback_query(SongCallback.filter(F.action.regexp(r"music")))

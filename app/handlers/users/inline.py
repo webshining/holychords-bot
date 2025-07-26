@@ -1,6 +1,7 @@
 from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent
 
 from app.api import get_songs, get_text
+from app.keyboards import get_song_markup
 from loader import dp
 
 
@@ -14,7 +15,8 @@ async def inline_handler(query: InlineQuery, session):
                     id=f'{i}',
                     title=f'{song.name} - {song.artist}',
                     description=song.artist,
-                    input_message_content=InputTextMessageContent(message_text=get_text(song.text, True))
+                    input_message_content=InputTextMessageContent(message_text=get_text(song.text)),
+                    reply_markup=get_song_markup("", id=song.id, inline=True)
                 ))
 
     await query.answer(results=results, is_personal=True, cache_time=2)
