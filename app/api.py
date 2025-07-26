@@ -71,21 +71,13 @@ async def save_songs_bulk(songs: list[SongAPI], db_session) -> list[Song]:
     incoming_ids = [s.id for s in songs]
 
     stmp = select(Song).where(Song.id.in_(incoming_ids))
-    songs = (await db_session.scalars(stmp)).all()
-    existing_ids = [s.id for s in songs]
+    db_songs = (await db_session.scalars(stmp)).all()
+    existing_ids = [s.id for s in db_songs if s.id in incoming_ids]
 
-    new_songs = [
-        Song(
-            id=s.id,
-            name=s.name,
-            artist=s.artist,
-            file=s.file,
-            text=s.text,
-        )
-        for s in songs if s.id not in existing_ids
-    ]
+    new_songs = [Song(id=s.id, name=s.name, artist=s.artist, file=s.file, text=s.text) for s in songs if
+                 s.id not in existing_ids]
 
-    songs.extend(new_songs)
+    db_songs.extend(new_songs)
 
     if new_songs:
         db_session.add_all(new_songs)
@@ -94,4 +86,4 @@ async def save_songs_bulk(songs: list[SongAPI], db_session) -> list[Song]:
         except:
             await db_session.rollback()
 
-    return songs
+    return db_songs
