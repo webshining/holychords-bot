@@ -5,9 +5,9 @@ from aiogram.types import CallbackQuery
 
 from app.api import get_text
 from app.handlers.users.search import get_song_state
-from app.keyboards import SongCallback, get_songs_markup, get_song_markup, SongsCallback
+from app.keyboards import SongCallback, SongsCallback, get_song_markup, get_songs_markup
 from database.models import User
-from loader import dp, _, bot
+from loader import _, bot, dp
 
 
 @dp.callback_query(SongsCallback.filter())
@@ -31,8 +31,7 @@ async def back_to_result_(call: CallbackQuery, user: User):
         for i, s in enumerate(songs):
             text += f"\n<b>{i + 1}.</b> <u>{s.name}</u> - {s.artist}"
         return await call.message.edit_text(text, reply_markup=get_songs_markup("search", songs))
-    return await call.message.edit_text(_("Looks like the songs are out of memory or you used /cancel"),
-                                        reply_markup=None)
+    return await call.message.edit_text(_("Looks like the songs are out of memory or you used /cancel"), reply_markup=None)
 
 
 @dp.callback_query(SongCallback.filter(F.action.startswith("chords")))
@@ -44,13 +43,16 @@ async def song_chords_(call: CallbackQuery, callback_data: SongCallback, user: U
 
     with suppress(Exception):
         if call.inline_message_id:
-            await bot.edit_message_text(inline_message_id=call.inline_message_id,
-                                        text=get_text(song.text, chords),
-                                        reply_markup=get_song_markup("", id=song.id, chords=chords, inline=True))
+            await bot.edit_message_text(
+                inline_message_id=call.inline_message_id,
+                text=get_text(song.text, chords),
+                reply_markup=get_song_markup("", id=song.id, chords=chords, inline=True),
+            )
         else:
-            await call.message.edit_text(get_text(song.text, chords),
-                                         reply_markup=get_song_markup(callback_data.data, song.id, chords=chords,
-                                                                      library=library))
+            await call.message.edit_text(
+                get_text(song.text, chords),
+                reply_markup=get_song_markup(callback_data.data, song.id, chords=chords, library=library),
+            )
 
 
 @dp.callback_query(SongCallback.filter(F.action.regexp(r"music")))
@@ -59,7 +61,7 @@ async def song_music_(call: CallbackQuery, callback_data: SongCallback, user: Us
 
     if song.file != "":
         return await call.message.answer_audio(audio=song.file)
-    return await call.answer(_("Looks like there’s no music on the resource for this song"), show_alert=True)
+    return await call.answer(_("Looks like there’s no music on the resource for this song"))
 
 
 @dp.callback_query(SongCallback.filter(F.action.startswith("library")))
@@ -76,4 +78,5 @@ async def song_library_(call: CallbackQuery, callback_data: SongCallback, user: 
         await session.commit()
 
     return await call.message.edit_reply_markup(
-        reply_markup=get_song_markup(callback_data.data, song.id, chords=not chords, library=library))
+        reply_markup=get_song_markup(callback_data.data, song.id, chords=not chords, library=library)
+    )
