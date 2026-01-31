@@ -1,16 +1,26 @@
 import asyncio
 
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiohttp import web
 from loguru import logger
 
-from app.commands import set_default_commands
-from app.handlers import dp
-from app.middlewares import setup_middlewares
-from loader import bot
+from app import set_default_commands, setup_middlewares
+from data.config import (
+    WEBHOOK_PATH,
+    WEBHOOK_SERVER_HOST,
+    WEBHOOK_SERVER_PORT,
+    WEBHOOK_SERVER_SECRET,
+    WEBHOOK_URL,
+)
+from loader import bot, dp
 
 
 async def on_startup() -> None:
     await set_default_commands()
-    logger.info("Bot started!")
+    if all([WEBHOOK_URL, WEBHOOK_PATH, WEBHOOK_SERVER_SECRET]):
+        await bot.set_webhook(f"{WEBHOOK_URL}{WEBHOOK_PATH}", secret_token=WEBHOOK_SERVER_SECRET)
+    else:
+        await bot.delete_webhook()
 
 
 async def on_shutdown() -> None:
@@ -21,7 +31,24 @@ async def main() -> None:
     setup_middlewares(dp)
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
-    await dp.start_polling(bot)
+
+    if all([WEBHOOK_URL, WEBHOOK_PATH, WEBHOOK_SERVER_SECRET, WEBHOOK_SERVER_PORT, WEBHOOK_SERVER_HOST]):
+        app = web.Application()
+        webhook_request_headers = SimpleRequestHandler(dispatcher=dp, bot=bot, secret_token=WEBHOOK_SERVER_SECRET)
+        webhook_request_headers.register(app, path=WEBHOOK_PATH)
+        setup_application(app, dp, bot=bot)
+
+        runner = web.AppRunner(app)
+        await runner.setup()
+
+        site = web.TCPSite(runner, host=WEBHOOK_SERVER_HOST, port=WEBHOOK_SERVER_PORT)
+        await site.start()
+
+        logger.info("Webhook started!")
+        await asyncio.Event().wait()
+    else:
+        logger.info("Bot polling started!")
+        await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
