@@ -1,4 +1,5 @@
 import asyncio
+import signal
 
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
@@ -45,11 +46,30 @@ async def main() -> None:
         await site.start()
 
         logger.info("Webhook started!")
-        await asyncio.Event().wait()
+
+        stop_event = asyncio.Event()
+
+        def signal_handler():
+            logger.info("Received stop signal, shutting down...")
+            stop_event.set()
+
+        loop = asyncio.get_running_loop()
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            loop.add_signal_handler(sig, signal_handler)
+
+        try:
+            await stop_event.wait()
+        finally:
+            await runner.cleanup()
     else:
         logger.info("Bot polling started!")
         await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Bot stopped by KeyboardInterrupt")
+    except Exception as e:
+        logger.exception(f"Bot crashed with error: {e}")
