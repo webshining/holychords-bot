@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-07-27 15:50+0300\n"
+"POT-Creation-Date: 2026-05-19 17:56+0300\n"
 "PO-Revision-Date: 2024-01-07 01:33+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: uk\n"
@@ -31,64 +31,31 @@ msgstr "шукати пісню"
 msgid "library"
 msgstr "бібліотека"
 
-#: app/commands/default.py:11
-msgid "reset action"
-msgstr "завершити дію"
-
-#: app/commands/default.py:12
-msgid "donate"
-msgstr "підтримати"
-
-#: app/handlers/cancel.py:11
-msgid "State reset!"
-msgstr "Дію завершено!"
-
-#: app/handlers/users/donate.py:15
-msgid "Support the Project"
-msgstr "Підтримати проєкт"
-
-#: app/handlers/users/donate.py:17
-msgid ""
-"If you enjoy using this bot, please consider making a small donation to "
-"support its development.\n"
-"You can also specify a different donation amount by sending /donate "
-"followed by the amount, for example: /donate 17"
-msgstr ""
-"Якщо вам подобається цей бот, розгляньте можливість зробити невеликий донат "
-"на підтримку його розвитку.\n"
-"Ви також можете вказати іншу суму, надіславши /donate із сумою, наприклад: /donate 17"
-
-#: app/handlers/users/donate.py:35
-msgid ""
-"🎉 Thank you for your donation\n"
-"Your support helps keep this project alive ❤️"
-msgstr ""
-"🎉 Дякуємо за вашу підтримку!\n"
-"Ваш внесок допомагає проєкту залишатися живим ❤️"
-
-#: app/handlers/users/library.py:12 app/handlers/users/library.py:21
-#: app/handlers/users/search.py:42 app/handlers/users/song.py:30
+#: app/handlers/users/library.py:16 app/handlers/users/library.py:27
+#: app/handlers/users/search.py:28 app/handlers/users/song.py:34
 msgid "Select song:"
 msgstr "Оберіть пісню:"
 
-#: app/handlers/users/search.py:30
+#: app/handlers/users/search.py:17
 msgid "Enter song name:"
 msgstr "Введіть назву пісні:"
 
-#: app/handlers/users/search.py:47
+#: app/handlers/users/search.py:33
 msgid "A song with this name was not found, try another:"
 msgstr "Пісню з такою назвою не було знайдено, спробуйте іншу:"
 
-#: app/handlers/users/song.py:22
+#: app/handlers/users/song.py:26
 msgid "Looks like the song has no lyrics"
 msgstr "Схоже, що на ресурсі немає слів для цієї пісні"
 
-#: app/handlers/users/song.py:34
-msgid "Looks like the songs are out of memory or you used /cancel"
-msgstr "Схоже, в памʼяті немає пісень або ви використали /cancel"
+#: app/handlers/users/song.py:38
+#, fuzzy
+msgid "Looks like the songs are out of memory"
+msgstr "Схоже, в памʼяті немає пісень"
 
-#: app/handlers/users/song.py:62
-msgid "Looks like there’s no music on the resource for this song"
+#: app/handlers/users/song.py:74
+#, fuzzy
+msgid "Looks like there's no music on the resource for this song"
 msgstr "Схоже, що на ресурсі немає музики для цієї пісні"
 
 #: app/handlers/users/start.py:10
@@ -108,20 +75,62 @@ msgstr ""
 "Якщо ви побачили помилку у відображенні тексту або ще щось, дайте мені "
 "знати: <b>@webshining</b>"
 
-#: app/keyboards/song.py:18
-#, python-brace-format
-msgid "Chords: {}"
-msgstr "Акорди: {}"
+#: app/keyboards/song.py:19
+msgid "Chords"
+msgstr "Акорди"
 
-#: app/keyboards/song.py:24
+#: app/keyboards/song.py:25
 msgid "Music"
 msgstr "Музика"
 
 #: app/keyboards/song.py:28
-#, python-brace-format
-msgid "In library: {}"
-msgstr "У бібліотеці: {}"
+msgid "In library"
+msgstr "У бібліотеці"
 
-#: app/keyboards/song.py:34
+#: app/keyboards/song.py:33
 msgid "Back"
 msgstr "Назад"
+
+#: app/services/__init__.py:21
+msgid "Song not found"
+msgstr "Пісню не знайдено"
+
+#: app/services/__init__.py:22
+msgid "Internal error"
+msgstr "Внутрішня помилка"
+
+#~ msgid "reset action"
+#~ msgstr "завершити дію"
+
+#~ msgid "donate"
+#~ msgstr "підтримати"
+
+#~ msgid "State reset!"
+#~ msgstr "Дію завершено!"
+
+#~ msgid "Support the Project"
+#~ msgstr "Підтримати проєкт"
+
+#~ msgid ""
+#~ "If you enjoy using this bot, "
+#~ "please consider making a small donation"
+#~ " to support its development.\n"
+#~ "You can also specify a different "
+#~ "donation amount by sending /donate "
+#~ "followed by the amount, for example: "
+#~ "/donate 17"
+#~ msgstr ""
+#~ "Якщо вам подобається цей бот, розгляньте"
+#~ " можливість зробити невеликий донат на "
+#~ "підтримку його розвитку.\n"
+#~ "Ви також можете вказати іншу суму, "
+#~ "надіславши /donate із сумою, наприклад: "
+#~ "/donate 17"
+
+#~ msgid ""
+#~ "🎉 Thank you for your donation\n"
+#~ "Your support helps keep this project alive ❤️"
+#~ msgstr ""
+#~ "🎉 Дякуємо за вашу підтримку!\n"
+#~ "Ваш внесок допомагає проєкту залишатися живим ❤️"
+

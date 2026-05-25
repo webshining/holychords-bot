@@ -1,14 +1,14 @@
 # Translations template for PROJECT.
-# Copyright (C) 2025 ORGANIZATION
+# Copyright (C) 2026 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-07-27 15:50+0300\n"
+"POT-Creation-Date: 2026-05-19 17:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,59 +29,29 @@ msgstr ""
 msgid "library"
 msgstr ""
 
-#: app/commands/default.py:11
-msgid "reset action"
-msgstr ""
-
-#: app/commands/default.py:12
-msgid "donate"
-msgstr ""
-
-#: app/handlers/cancel.py:11
-msgid "State reset!"
-msgstr ""
-
-#: app/handlers/users/donate.py:15
-msgid "Support the Project"
-msgstr ""
-
-#: app/handlers/users/donate.py:17
-msgid ""
-"If you enjoy using this bot, please consider making a small donation to "
-"support its development.\n"
-"You can also specify a different donation amount by sending /donate "
-"followed by the amount, for example: /donate 17"
-msgstr ""
-
-#: app/handlers/users/donate.py:35
-msgid ""
-"🎉 Thank you for your donation\n"
-"Your support helps keep this project alive ❤️"
-msgstr ""
-
-#: app/handlers/users/library.py:12 app/handlers/users/library.py:21
-#: app/handlers/users/search.py:42 app/handlers/users/song.py:30
+#: app/handlers/users/library.py:16 app/handlers/users/library.py:27
+#: app/handlers/users/search.py:28 app/handlers/users/song.py:34
 msgid "Select song:"
 msgstr ""
 
-#: app/handlers/users/search.py:30
+#: app/handlers/users/search.py:17
 msgid "Enter song name:"
 msgstr ""
 
-#: app/handlers/users/search.py:47
+#: app/handlers/users/search.py:33
 msgid "A song with this name was not found, try another:"
 msgstr ""
 
-#: app/handlers/users/song.py:22
+#: app/handlers/users/song.py:26
 msgid "Looks like the song has no lyrics"
 msgstr ""
 
-#: app/handlers/users/song.py:34
-msgid "Looks like the songs are out of memory or you used /cancel"
+#: app/handlers/users/song.py:38
+msgid "Looks like the songs are out of memory"
 msgstr ""
 
-#: app/handlers/users/song.py:62
-msgid "Looks like there’s no music on the resource for this song"
+#: app/handlers/users/song.py:74
+msgid "Looks like there's no music on the resource for this song"
 msgstr ""
 
 #: app/handlers/users/start.py:10
@@ -99,21 +69,27 @@ msgid ""
 "know: <b>@webshining</b>"
 msgstr ""
 
-#: app/keyboards/song.py:18
-#, python-brace-format
-msgid "Chords: {}"
+#: app/keyboards/song.py:19
+msgid "Chords"
 msgstr ""
 
-#: app/keyboards/song.py:24
+#: app/keyboards/song.py:25
 msgid "Music"
 msgstr ""
 
 #: app/keyboards/song.py:28
-#, python-brace-format
-msgid "In library: {}"
+msgid "In library"
 msgstr ""
 
-#: app/keyboards/song.py:34
+#: app/keyboards/song.py:33
 msgid "Back"
+msgstr ""
+
+#: app/services/__init__.py:21
+msgid "Song not found"
+msgstr ""
+
+#: app/services/__init__.py:22
+msgid "Internal error"
 msgstr ""
 

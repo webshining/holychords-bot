@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package songs;
+
+import "common/common.proto";
+
+service SongsService {
+    rpc Search(SearchRequest) returns(SongsList);
+    rpc Get(GetRequest) returns(Song);
+
+    rpc AddToLibrary(AddToLibraryRequest) returns(common.Empty);
+    rpc GetLibrary(common.Empty) returns(SongsList);
+    rpc RemoveFromLibrary(RemoveFromLibraryRequest) returns(common.Empty);
+
+    rpc GetHistory(common.Empty) returns(SongsList);
+}
+
+message GetRequest {
+    string id = 1;
+    Source source = 2;
+}
+message SearchRequest {
+    string input = 1; 
+    Source source = 2;
+}
+message AddToLibraryRequest {
+    string id = 1;
+    Source source = 2;
+}
+message RemoveFromLibraryRequest {
+    string id = 1;
+    Source source = 2;
+}
+
+message Song {
+    string id = 1;
+    string name = 2;
+    string artist = 3;
+    optional string file = 4;
+    optional string text = 5;
+    Source source = 6;
+
+    optional bool in_library = 7;
+}
+message SongsList {
+    repeated Song songs = 1;
+}
+
+enum Source {
+    HOLYCHORDS = 0;
+}

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
@@ -15,7 +16,10 @@ class UserMiddleware(BaseMiddleware):
             await self.handle_callback_query(event.callback_query, session, data)
         elif event.inline_query:
             await self.handle_inline_query(event.inline_query, session, data)
+
+        data["user"].updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
         await session.commit()
+
         await handler(event, data)
 
     @staticmethod
@@ -27,8 +31,6 @@ class UserMiddleware(BaseMiddleware):
                 name=message.from_user.full_name,
                 username=message.from_user.username,
                 session=session,
-                history=[],
-                songs=[],
             )
         else:
             user = await User.update(
@@ -38,7 +40,6 @@ class UserMiddleware(BaseMiddleware):
 
     @staticmethod
     async def handle_callback_query(call: CallbackQuery, session, data: Dict[str, Any]):
-        await call.answer()
         user = await User.get(call.from_user.id, session=session)
         if not user:
             user = await User.create(

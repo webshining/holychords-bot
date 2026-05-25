@@ -1,12 +1,15 @@
 import asyncio
 import signal
 
+import grpc.aio as grpc
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
 from loguru import logger
+from songs import songs_pb2_grpc
 
 from app import set_default_commands, setup_middlewares
 from data.config import (
+    SONGS_ENDPOINT,
     WEBHOOK_PATH,
     WEBHOOK_SERVER_HOST,
     WEBHOOK_SERVER_PORT,
@@ -22,6 +25,11 @@ async def on_startup() -> None:
         await bot.set_webhook(f"{WEBHOOK_URL}{WEBHOOK_PATH}", secret_token=WEBHOOK_SERVER_SECRET)
     else:
         await bot.delete_webhook()
+
+    channel = grpc.insecure_channel(SONGS_ENDPOINT)
+    songs_client = songs_pb2_grpc.SongsServiceStub(channel)
+
+    dp["songs"] = songs_client
 
 
 async def on_shutdown() -> None:

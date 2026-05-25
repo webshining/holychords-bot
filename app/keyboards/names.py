@@ -1,23 +1,16 @@
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
-from database.models import Song
-
 
 class SongsCallback(CallbackData, prefix="songs"):
     data: str
-    id: int
+    id: str
 
 
-def get_songs_markup(data: str, songs: list[Song]):
+def get_songs_markup(data: str, songs: list[any]):
     builder = InlineKeyboardBuilder()
 
-    buttons = [
-        InlineKeyboardButton(
-            text=f"{i + 1}", callback_data=SongsCallback(data=data, id=s.id).pack()
-        )
-        for i, s in enumerate(songs)
-    ]
+    buttons = [InlineKeyboardButton(text=f"{i + 1}", callback_data=SongsCallback(data=data, id=s.id).pack()) for i, s in enumerate(songs)]
     builder.add(*buttons)
     builder.adjust(2)
 
