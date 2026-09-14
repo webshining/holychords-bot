@@ -1,38 +1,24 @@
-### <p align="center"><a href="https://core.telegram.org/bots/api">Telegram Bot</a> with <a href="https://docs.aiogram.dev/en/dev-3.x/">aiogram</a>, <a href="https://surrealdb.com/">SurrealDB</a> and <a href="https://www.docker.com/">docker</a></p>
+### <p align="center"><a href="https://core.telegram.org/bots/api">Telegram Bot</a> with <a href="https://docs.aiogram.dev/en/dev-3.x/">aiogram</a>
 
-## Technologies used:
+---
 
-- Aiogram
-- SurrealDB
-- Redis
-- i18n
-- Docker and docker compose
+- [Init project](#init-project)
+- [Configure environment variables](#configure-environment-variables)
+- [Bot config](#bot-config)
+- [Redis config](#redis-config)
+- [Database config](#database-config)
+- [Songs config](#songs-config)
+- [Application start](#application-start)
 
-## Navigate
-
-- [Getting started](#getting-started)
-    - [Init project](#init-project)
-    - [Configure environment variables](#configure-environment-variables)
-        - [Bot config](#bot-config)
-        - [Redis config](#redis-config)
-        - [Database config](#database-config)
-    - [Application start (local)](#application-start-local)
-- [Docker](#docker)
-    - [Application start (docker)](#application-start-docker)
-    - [View app logs](#view-app-logs)
-    - [Rebuild](#rebuild)
-
-## Getting started
-
-### Init project
+## Init project
 
 ```bash
 $ git clone https://github.com/webshining/holychords-bot project_name
 $ cd project_name
-$ pip install -r requirements.txt
+$ uv sync
 ```
 
-### Configure environment variables
+## Configure environment variables
 
 > Copy variables from .env.ren file to .env
 
@@ -40,73 +26,36 @@ $ pip install -r requirements.txt
 $ cp .env.ren .env
 ```
 
-### Bot config
+## Bot config
 
 `TELEGRAM_BOT_TOKEN` - your bot token (required)
 
-### SurrealDB config
+`WEBHOOK_URL` - url to your webhook server (https://example.com) [for telegram]
+
+`WEBHOOK_PATH` - url path to your bot in webhook server (/mybot) [for telegram]
+
+`WEBHOOK_SERVER_HOST` - host for start webhook server
+
+`WEBHOOK_SERVER_PORT` - port for start webhook server
+
+## Redis config
 
 > If you are not using redis, by default used MemoryStorage
-
-`SURREAL_NS` = surrealdb nameserver
-
-`SURREAL_DB` = surrealdb database name
-
-`SURREAL_USER` = surrealdb username
-
-`SURREAL_PASS` = surrealdb password
-
-`SURREAL_URL` = connection url to your surrealdb
-
-### Redis config
-
-> If you are not using redis, by default used MemoryStorage
-
-`RD_DB` = redis database (number)
-
-`RD_HOST` = redis host
-
-`RD_PORT` = redis port
 
 `RD_URI` - connection url to your redis server
 
-### Application start (local)
+## Database config
+
+> If not provided by default used sqlite3
+
+`DB_URI` - connection url to your database (postgresql+asyncpg://admin:admin@127.0.0.1:5432/mybot)
+
+## Songs config
+
+`SONGS_ENDPOINT` - endpoint of songs grpc service (127.0.0.1:4003)
+
+## Application start
 
 ```bash
-$ python main.py
-# If you have make you can enter
-$ make run
-```
-
-## Docker
-
-### Application start (docker)
-
-> Run only one service:<br>
-> ```bash
-> $ docker-compose up -d service_name
-> # If you have make you can enter
-> $ make rebuild service_name
-> ```
-
-```bash
-$ docker-compose up -d
-# If you have make you can enter
-$ make rebuild
-```
-
-### View app logs
-
-```bash
-$ docker-compose logs -f app
-# If you have make you can enter
-$ make logs
-```
-
-### Rebuild
-
-```bash
-$ docker-compose up -d --build --no-deps --force-recreate
-# If you have make you can enter
-$ make rebuild
+$ uv run main.py
 ```
