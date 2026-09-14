@@ -19,11 +19,14 @@ async def select_song_(call: CallbackQuery, callback_data: SongsCallback, user: 
     except Exception as e:
         return await call.answer(str(e), show_alert=True)
 
+    text, markup = _("Looks like the song has no lyrics"), None
     if song.text:
         text = song_text(song.text, chords=False)
-        markup = get_song_markup(callback_data.data, song.id, library=song.in_library)
-        return await call.message.edit_text(text, reply_markup=markup)
-    return await call.answer(_("Looks like the song has no lyrics"))
+        markup = get_song_markup(callback_data.data, song.id, library=song.in_library, inline=call.inline_message_id is not None)
+
+    if call.inline_message_id:
+        return await call.bot.edit_message_text(text, reply_markup=markup, inline_message_id=call.inline_message_id)
+    return await call.message.edit_text(text, reply_markup=markup)
 
 
 @dp.callback_query(SongCallback.filter(F.data.regexp(r"search") & F.action.regexp(r"back")))
@@ -52,7 +55,7 @@ async def song_chords_(call: CallbackQuery, callback_data: SongCallback, user: U
             await bot.edit_message_text(
                 inline_message_id=call.inline_message_id,
                 text=song_text(song.text, chords),
-                reply_markup=get_song_markup("", id=song.id, chords=chords, inline=True),
+                reply_markup=get_song_markup(callback_data.data, id=song.id, chords=chords, inline=True),
             )
         else:
             await call.message.edit_text(

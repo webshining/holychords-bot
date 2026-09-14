@@ -1,3 +1,4 @@
+from .guest import dp
 from .inline import dp
 from .library import dp
 from .search import dp

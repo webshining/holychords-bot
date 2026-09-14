@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
-from typing import Any, Awaitable, Callable, Dict
+from collections.abc import Awaitable, Callable
+from datetime import UTC, datetime
+from typing import Any
 
 from aiogram import BaseMiddleware
 from aiogram.types import CallbackQuery, InlineQuery, Message, Update
@@ -8,22 +9,22 @@ from database.models import User
 
 
 class UserMiddleware(BaseMiddleware):
-    async def __call__(self, handler: Callable[[Update, Dict[str, Any]], Awaitable[Any]], event: Update, data: Dict[str, Any]):
+    async def __call__(self, handler: Callable[[Update, dict[str, Any]], Awaitable[Any]], event: Update, data: dict[str, Any]):
         session = data["session"]
-        if event.message:
-            await self.handle_message(event.message, session, data)
+        if event.message or event.guest_message:
+            await self.handle_message(event.message or event.guest_message, session, data)
         elif event.callback_query:
             await self.handle_callback_query(event.callback_query, session, data)
         elif event.inline_query:
             await self.handle_inline_query(event.inline_query, session, data)
 
-        data["user"].updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        data["user"].updated_at = datetime.now(UTC).replace(tzinfo=None)
         await session.commit()
 
         await handler(event, data)
 
     @staticmethod
-    async def handle_message(message: Message, session, data: Dict[str, Any]):
+    async def handle_message(message: Message, session, data: dict[str, Any]):
         user = await User.get(message.from_user.id, session=session)
         if not user:
             user = await User.create(
@@ -39,7 +40,7 @@ class UserMiddleware(BaseMiddleware):
         data["user"] = user
 
     @staticmethod
-    async def handle_callback_query(call: CallbackQuery, session, data: Dict[str, Any]):
+    async def handle_callback_query(call: CallbackQuery, session, data: dict[str, Any]):
         user = await User.get(call.from_user.id, session=session)
         if not user:
             user = await User.create(
@@ -50,7 +51,7 @@ class UserMiddleware(BaseMiddleware):
         data["user"] = user
 
     @staticmethod
-    async def handle_inline_query(query: InlineQuery, session, data: Dict[str, Any]):
+    async def handle_inline_query(query: InlineQuery, session, data: dict[str, Any]):
         user = await User.get(query.from_user.id, session=session)
         if not user:
             user = await User.create(

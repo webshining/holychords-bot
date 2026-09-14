@@ -1,27 +1,24 @@
 from aiogram import F
 from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.types import InlineQueryResultArticle, InputTextMessageContent, Message
 from songs import songs_pb2
 
 from app.keyboards import get_songs_markup
-from app.states import SearchState
 from database.models import User
 from loader import _, dp
 
 
 @dp.message(Command("search"))
-async def search_(message: Message, state: FSMContext):
+async def search_(message: Message):
     await message.delete()
-    await state.set_state(SearchState.name)
     return await message.answer(_("Enter song name:"))
 
 
-@dp.message(SearchState.name)
 @dp.message(F.text, ~F.text.startswith("/"))
-async def search_name_(message: Message, state: FSMContext, user: User, session, songs):
+async def search_query_(message: Message, user: User, songs):
+    query = message.text.replace(f"@{(await message.bot.me()).username}", "").strip()
     response = await songs.Search(
-        songs_pb2.SearchRequest(input=message.text, source=songs_pb2.Source.HOLYCHORDS), metadata=[("user_id", str(user.id))]
+        songs_pb2.SearchRequest(input=query, source=songs_pb2.Source.HOLYCHORDS), metadata=[("user_id", str(user.id))]
     )
 
     if response.songs:
@@ -32,5 +29,10 @@ async def search_name_(message: Message, state: FSMContext, user: User, session,
     else:
         text, markup = _("A song with this name was not found, try another:"), None
 
-    await state.set_state(None)
+    if message.answer_guest_query:
+        return await message.answer_guest_query(
+            InlineQueryResultArticle(
+                id=query, title=query, input_message_content=InputTextMessageContent(message_text=text), reply_markup=markup
+            )
+        )
     await message.answer(text, reply_markup=markup)
