@@ -29,7 +29,7 @@ async def search_query_(message: Message, user: User, songs):
     else:
         text, markup = _("A song with this name was not found, try another:"), None
 
-    if message.answer_guest_query:
+    if message.guest_query_id:
         return await message.answer_guest_query(
             InlineQueryResultArticle(
                 id=query, title=query, input_message_content=InputTextMessageContent(message_text=text), reply_markup=markup
