@@ -1,7 +1,7 @@
 from aiogram import F
 from aiogram.filters import Command
 from aiogram.types import InlineQueryResultArticle, InputTextMessageContent, Message
-from songs import songs_pb2
+from songs.v1 import songs_pb2
 
 from app.keyboards import get_songs_markup
 from database.models import User

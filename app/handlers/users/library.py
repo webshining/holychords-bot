@@ -2,7 +2,7 @@ from aiogram import F
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 from common import common_pb2
-from songs.songs_pb2_grpc import SongsServiceStub
+from songs.v1.songs_pb2_grpc import SongsServiceStub
 
 from app.keyboards import SongCallback, get_songs_markup
 from database.models import User

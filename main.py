@@ -5,7 +5,7 @@ import grpc.aio as grpc
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
 from loguru import logger
-from songs import songs_pb2_grpc
+from songs.v1 import songs_pb2_grpc
 
 from app import set_default_commands, setup_middlewares
 from data.config import (

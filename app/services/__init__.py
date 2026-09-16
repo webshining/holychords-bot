@@ -3,8 +3,8 @@ import re
 
 import grpc
 from loguru import logger
-from songs import songs_pb2
-from songs.songs_pb2_grpc import SongsServiceStub
+from songs.v1 import songs_pb2
+from songs.v1.songs_pb2_grpc import SongsServiceStub
 
 from loader import _
 

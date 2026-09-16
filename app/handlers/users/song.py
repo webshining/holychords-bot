@@ -3,8 +3,8 @@ from contextlib import suppress
 from aiogram import F
 from aiogram.types import CallbackQuery
 from common import common_pb2
-from songs import songs_pb2
-from songs.songs_pb2_grpc import SongsServiceStub
+from songs.v1 import songs_pb2
+from songs.v1.songs_pb2_grpc import SongsServiceStub
 
 from app.keyboards import SongCallback, SongsCallback, get_song_markup, get_songs_markup
 from app.services import get_song, song_text

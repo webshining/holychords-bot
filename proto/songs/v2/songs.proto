@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package songs.v2;
+
+import "common/common.proto";
+
+service SongsService {
+    rpc Search(SearchRequest) returns(SearchResponse);
+    
+    rpc GetHistory(GetHistoryRequest) returns(GetHistoryResponse);
+}
+
+message SearchRequest {
+    string input = 1; 
+    Source source = 2;
+}
+message GetHistoryRequest {
+    string key = 1;
+}
+
+message Song {
+    string id = 1;
+    string name = 2;
+    string artist = 3;
+    optional string file = 4;
+    optional string text = 5;
+    Source source = 6;
+
+    optional bool in_library = 7;
+}
+message SongsList {
+    repeated Song songs = 1;
+}
+
+message SearchResponse {
+    string key = 1;
+    repeated Song songs = 2;
+}
+message GetHistoryResponse {
+    string key = 1;
+    repeated Song songs = 2;
+}
+
+enum Source {
+    HOLYCHORDS = 0;
+}

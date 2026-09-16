@@ -1,11 +1,11 @@
 from aiogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent
-from songs import songs_pb2
-from songs.songs_pb2_grpc import SongsServiceStub
+from songs.v1 import songs_pb2
+from songs.v1.songs_pb2_grpc import SongsServiceStub
 
 from app.keyboards import get_song_markup
+from app.services import song_text
 from database.models import User
 from loader import dp
-from app.services import song_text
 
 
 @dp.inline_query()
