@@ -14,6 +14,7 @@ dependencies = [
     "grpcio>=1.84.0",
     "loguru>=0.7.3",
     "lxml-html-clean>=0.4.5",
+    "nanoid>=2.0.0",
     "protobuf>=7.36.1",
     "pydantic>=2.13.5",
     "pytz>=2026.3.post1",

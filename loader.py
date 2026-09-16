@@ -1,9 +1,20 @@
+from dataclasses import dataclass
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.utils.i18n import I18n
+from songs.v1 import songs_pb2_grpc as songs_v1_grpc
+from songs.v2 import songs_pb2_grpc as songs_v2_grpc
 
 from data.config import I18N_DOMAIN, I18N_PATH, RD_URI, TELEGRAM_BOT_TOKEN
+
+
+@dataclass(slots=True)
+class SongsClients:
+    v1: songs_v1_grpc.SongsServiceStub
+    v2: songs_v2_grpc.SongsServiceStub
+
 
 bot = Bot(
     TELEGRAM_BOT_TOKEN,

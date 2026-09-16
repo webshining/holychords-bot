@@ -3,17 +3,14 @@ import re
 
 import grpc
 from loguru import logger
-from songs.v1 import songs_pb2
-from songs.v1.songs_pb2_grpc import SongsServiceStub
+from songs.v1 import songs_pb2 as songs_v1
 
 from loader import _
 
 
-async def get_song(
-    songs: SongsServiceStub, user_id: str, id: str, source: songs_pb2.Source = songs_pb2.Source.HOLYCHORDS
-) -> songs_pb2.Song:
+async def get_song(songs, user_id: str, id: str, source: songs_v1.Source = songs_v1.Source.HOLYCHORDS) -> songs_v1.Song:
     try:
-        song = await songs.Get(songs_pb2.GetRequest(id=id, source=source), metadata=[("user_id", user_id)])
+        song = await songs.v1.Get(songs_v1.GetRequest(id=id, source=source), metadata=[("user_id", user_id)])
     except grpc.RpcError as e:
         logger.error(f"gRPC Error in select_song: {e.code()} - {e.details()}")
 
